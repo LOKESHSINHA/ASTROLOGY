@@ -16,6 +16,7 @@ import OurStory from './pages/OurStory';
 import Testimonials from './pages/Testimonials';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import AdminProfile from './pages/AdminProfile';
 import MyReadings from './pages/MyReadings';
 import './App.css';
 
@@ -44,6 +45,7 @@ function App() {
         {/* User Authentication & Profile Pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/admin" element={<AdminProfile />} />
         <Route path="/my-readings" element={<MyReadings />} />
       </Routes>
     </Router>

@@ -24,20 +24,30 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
+    // Check for admin login
+    const isAdminLogin = formData.email === 'admin@aditya-astro.com' && formData.password === 'admin123';
+
     // Simulate login/register
     const userData = {
-      name: isLogin ? 'John Doe' : formData.name,
+      name: isAdminLogin ? 'Admin User' : (isLogin ? 'John Doe' : formData.name),
       email: formData.email,
       phone: isLogin ? '+91 98765 43210' : formData.phone,
       avatar: null,
       joinDate: new Date().toISOString(),
       totalReadings: isLogin ? 5 : 0,
-      membershipType: 'Premium'
+      membershipType: isAdminLogin ? 'Admin' : 'Premium',
+      role: isAdminLogin ? 'admin' : 'user'
     };
 
     localStorage.setItem('user', JSON.stringify(userData));
-    navigate('/profile');
+
+    // Redirect based on role
+    if (isAdminLogin) {
+      navigate('/admin');
+    } else {
+      navigate('/profile');
+    }
   };
 
   return (
@@ -251,8 +261,11 @@ const Login = () => {
 
         {/* Demo Login */}
         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-800 font-medium text-center">
+          <p className="text-sm text-blue-800 font-medium text-center mb-2">
             Demo Login: Use any email and password to continue
+          </p>
+          <p className="text-xs text-blue-700 text-center">
+            Admin Access: admin@aditya-astro.com / admin123
           </p>
         </div>
       </div>
