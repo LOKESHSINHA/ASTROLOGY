@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Color Palette */
+:root {
+  --color-primary-peach: #ffd9ce;
+  --color-primary-coral: #e26d5c;
+  --color-primary-yellow: #f5cb5c;
+  --color-primary-purple: #8093f1;
+  --color-dark-slate: #0f172a;
+  --color-dark-blue: #1e3a8a;
+  --color-dark-gray: #111827;
+}
+
+/* Custom utility classes for the color palette */
+@layer utilities {
+  .bg-primary-peach { background-color: var(--color-primary-peach); }
+  .bg-primary-coral { background-color: var(--color-primary-coral); }
+  .bg-primary-yellow { background-color: var(--color-primary-yellow); }
+  .bg-primary-purple { background-color: var(--color-primary-purple); }
+  .bg-dark-slate { background-color: var(--color-dark-slate); }
+  .bg-dark-blue { background-color: var(--color-dark-blue); }
+  .bg-dark-gray { background-color: var(--color-dark-gray); }
+
+  .text-primary-peach { color: var(--color-primary-peach); }
+  .text-primary-coral { color: var(--color-primary-coral); }
+  .text-primary-yellow { color: var(--color-primary-yellow); }
+  .text-primary-purple { color: var(--color-primary-purple); }
+  .text-dark-slate { color: var(--color-dark-slate); }
+  .text-dark-blue { color: var(--color-dark-blue); }
+  .text-dark-gray { color: var(--color-dark-gray); }
+
+  .border-primary-peach { border-color: var(--color-primary-peach); }
+  .border-primary-coral { border-color: var(--color-primary-coral); }
+  .border-primary-yellow { border-color: var(--color-primary-yellow); }
+  .border-primary-purple { border-color: var(--color-primary-purple); }
+  .border-dark-slate { border-color: var(--color-dark-slate); }
+  .border-dark-blue { border-color: var(--color-dark-blue); }
+  .border-dark-gray { border-color: var(--color-dark-gray); }
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+

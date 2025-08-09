@@ -1,0 +1,39 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  children: any;
+}
+
+const { title, children } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --background-color: #1a1a1a;
+        --text-color: #ecf0f1;
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main class="min-h-screen bg-gradient-to-b from-[#1a1a1a] to-[#000000] text-white">
+      {children}
+    </main>
+    <Footer />
+  </body>
+</html>
+
+
