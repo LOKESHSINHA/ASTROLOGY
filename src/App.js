@@ -14,6 +14,9 @@ import CareerGuidance from './pages/CareerGuidance';
 import AboutAditya from './pages/AboutAditya';
 import OurStory from './pages/OurStory';
 import Testimonials from './pages/Testimonials';
+import Login from './pages/Login';
+import Profile from './pages/Profile';
+import MyReadings from './pages/MyReadings';
 import './App.css';
 
 function App() {
@@ -37,6 +40,11 @@ function App() {
         <Route path="/about/aditya" element={<Layout><AboutAditya /></Layout>} />
         <Route path="/about/story" element={<Layout><OurStory /></Layout>} />
         <Route path="/about/testimonials" element={<Layout><Testimonials /></Layout>} />
+
+        {/* User Authentication & Profile Pages */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/my-readings" element={<MyReadings />} />
       </Routes>
     </Router>
   );

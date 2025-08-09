@@ -1,19 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Sun, ChevronDown, Star, Heart, Calendar, User, Phone, BookOpen, Sparkles } from 'lucide-react';
+import { Menu, X, Sun, ChevronDown, Star, Heart, Calendar, User, Phone, BookOpen, Sparkles, LogIn, LogOut, UserCircle } from 'lucide-react';
 
 const Header = ({ title = 'Aditya Astrology' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
+
+  // Check for existing login session
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   // Handle scroll effect for navbar transparency
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -44,6 +55,18 @@ const Header = ({ title = 'Aditya Astrology' }) => {
 
   const handleDropdownToggle = (dropdown) => {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
+
+  const handleLogin = () => {
+    // Navigate to login page instead of simulating login
+    window.location.href = '/login';
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem('user');
+    setActiveDropdown(null);
   };
 
   const servicesDropdown = [
@@ -203,14 +226,65 @@ const Header = ({ title = 'Aditya Astrology' }) => {
               )}
             </li>
 
-            <li>
-              <Link
-                to="/contact"
-                className="bg-gradient-to-r from-slate-800 to-blue-700 hover:from-slate-900 hover:to-blue-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-semibold text-sm lg:text-base hover:shadow-lg hover:shadow-slate-500/30 transform hover:scale-105 transition-all duration-300 border border-slate-300"
-              >
-                Get Reading
-              </Link>
-            </li>
+            {/* Login/Logout Section */}
+            {isLoggedIn ? (
+              <li className="relative">
+                <button
+                  className="flex items-center gap-2 text-slate-800 hover:text-blue-700 transition-all duration-300 font-semibold py-2 group text-sm lg:text-base"
+                  onClick={() => handleDropdownToggle('user')}
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-slate-700 to-blue-600 rounded-full flex items-center justify-center">
+                    <UserCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="hidden xl:block">{user?.name || 'User'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'user' ? 'rotate-180' : ''}`} />
+                </button>
+
+                {activeDropdown === 'user' && (
+                  <div className="absolute top-full right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl py-4 z-50 animate-fadeIn">
+                    <div className="px-6 py-3 border-b border-slate-200">
+                      <p className="font-semibold text-slate-800">{user?.name}</p>
+                      <p className="text-sm text-slate-600">{user?.email}</p>
+                    </div>
+                    <div className="py-2">
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-3 px-6 py-3 hover:bg-slate-50 transition-all duration-300 text-slate-700 hover:text-blue-700"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        <User className="w-4 h-4" />
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/my-readings"
+                        className="flex items-center gap-3 px-6 py-3 hover:bg-slate-50 transition-all duration-300 text-slate-700 hover:text-blue-700"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        My Readings
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-6 py-3 hover:bg-slate-50 transition-all duration-300 text-slate-700 hover:text-red-600 w-full text-left"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ) : (
+              <li>
+                <button
+                  onClick={handleLogin}
+                  className="flex items-center gap-2 bg-gradient-to-r from-slate-800 to-blue-700 hover:from-slate-900 hover:to-blue-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-semibold text-sm lg:text-base hover:shadow-lg hover:shadow-slate-500/30 transform hover:scale-105 transition-all duration-300 border border-slate-300"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </button>
+              </li>
+            )}
           </ul>
 
           {/* Mobile Menu Button */}
@@ -307,14 +381,62 @@ const Header = ({ title = 'Aditya Astrology' }) => {
                 </div>
               </li>
 
+              {/* Mobile Login/Logout Section */}
               <li className="pt-3 sm:pt-4 border-t border-slate-200">
-                <Link
-                  to="/contact"
-                  className="block mx-3 sm:mx-4 bg-gradient-to-r from-slate-800 to-blue-700 hover:from-slate-900 hover:to-blue-800 backdrop-blur-sm text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold text-center hover:shadow-lg hover:shadow-slate-500/30 transition-all duration-300 border border-slate-300 text-sm sm:text-base"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Get Reading
-                </Link>
+                {isLoggedIn ? (
+                  <div className="space-y-2">
+                    <div className="mx-3 sm:mx-4 bg-slate-50 rounded-xl p-3 sm:p-4 border border-slate-200">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-slate-700 to-blue-600 rounded-full flex items-center justify-center">
+                          <UserCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-800 text-sm sm:text-base">{user?.name}</p>
+                          <p className="text-xs sm:text-sm text-slate-600">{user?.email}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Link
+                          to="/profile"
+                          className="flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-blue-700 hover:bg-white rounded-lg transition-all duration-300 text-sm sm:text-base font-medium"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <User className="w-4 h-4" />
+                          My Profile
+                        </Link>
+                        <Link
+                          to="/my-readings"
+                          className="flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-blue-700 hover:bg-white rounded-lg transition-all duration-300 text-sm sm:text-base font-medium"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <BookOpen className="w-4 h-4" />
+                          My Readings
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsMenuOpen(false);
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-red-600 hover:bg-white rounded-lg transition-all duration-300 w-full text-left text-sm sm:text-base font-medium"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleLogin();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 mx-3 sm:mx-4 bg-gradient-to-r from-slate-800 to-blue-700 hover:from-slate-900 hover:to-blue-800 backdrop-blur-sm text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:shadow-lg hover:shadow-slate-500/30 transition-all duration-300 border border-slate-300 text-sm sm:text-base w-auto"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </button>
+                )}
               </li>
             </ul>
           </div>
