@@ -2,14 +2,496 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <!-- Custom Favicon and Logo with Light Blue Theme -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%233b82f6'/><circle cx='50' cy='50' r='35' fill='%2360a5fa'/><circle cx='50' cy='50' r='25' fill='%2393c5fd'/><circle cx='50' cy='50' r='15' fill='%23bfdbfe'/><circle cx='50' cy='50' r='8' fill='%23eff6ff'/><text x='50' y='58' text-anchor='middle' font-family='serif' font-size='24' font-weight='bold' fill='%231e40af'>A</text></svg>" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%233b82f6'/><circle cx='50' cy='50' r='35' fill='%2360a5fa'/><circle cx='50' cy='50' r='25' fill='%2393c5fd'/><circle cx='50' cy='50' r='15' fill='%23bfdbfe'/><circle cx='50' cy='50' r='8' fill='%23eff6ff'/><text x='50' y='58' text-anchor='middle' font-family='serif' font-size='24' font-weight='bold' fill='%231e40af'>A</text></svg>" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Astrology App - Your cosmic guide to the stars" />
-    <title>Astrology App</title>
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- SEO and Social Media Meta Tags -->
+    <meta name="description" content="Aaditya Astrology - Your trusted guide to cosmic wisdom. Get personalized birth chart readings, horoscopes, and astrological guidance from expert astrologers." />
+    <meta name="keywords" content="astrology, horoscope, birth chart, zodiac signs, predictions, vedic astrology, numerology, tarot reading, spiritual guidance" />
+    <meta name="author" content="Aaditya Astrology" />
+
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="Aaditya Astrology - Your Cosmic Guide" />
+    <meta property="og:description" content="Discover your destiny with personalized astrological readings and cosmic guidance from expert astrologers." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><radialGradient id='blueGrad' cx='50%' cy='50%'><stop offset='0%' stop-color='%23eff6ff'/><stop offset='50%' stop-color='%233b82f6'/><stop offset='100%' stop-color='%231d4ed8'/></radialGradient></defs><circle cx='100' cy='100' r='90' fill='url(%23blueGrad)'/><g stroke='%231d4ed8' stroke-width='3' fill='none'><path d='M100 20 L100 40'/><path d='M100 160 L100 180'/><path d='M20 100 L40 100'/><path d='M160 100 L180 100'/><path d='M35.86 35.86 L50.71 50.71'/><path d='M149.29 149.29 L164.14 164.14'/><path d='M164.14 35.86 L149.29 50.71'/><path d='M50.71 149.29 L35.86 164.14'/></g><text x='100' y='115' text-anchor='middle' font-family='serif' font-size='48' font-weight='bold' fill='%231e40af'>A</text></svg>" />
+    <meta property="og:url" content="https://aaditya-astrology.com" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aaditya Astrology - Your Cosmic Guide" />
+    <meta name="twitter:description" content="Discover your destiny with personalized astrological readings and cosmic guidance." />
+
+    <title>Aaditya Astrology</title>
+
+    <!-- Preload important fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Custom CSS for Spectacular Loading Animation -->
+    <style>
+      /* Loading screen with cosmic background */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:
+          radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%),
+          linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+        overflow: hidden;
+      }
+
+      /* Animated stars background */
+      .stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite;
+      }
+
+      .star:nth-child(1) { width: 2px; height: 2px; top: 20%; left: 20%; animation-delay: 0s; }
+      .star:nth-child(2) { width: 1px; height: 1px; top: 30%; left: 80%; animation-delay: 0.5s; }
+      .star:nth-child(3) { width: 3px; height: 3px; top: 70%; left: 10%; animation-delay: 1s; }
+      .star:nth-child(4) { width: 2px; height: 2px; top: 80%; left: 90%; animation-delay: 1.5s; }
+      .star:nth-child(5) { width: 1px; height: 1px; top: 10%; left: 50%; animation-delay: 2s; }
+      .star:nth-child(6) { width: 2px; height: 2px; top: 60%; left: 70%; animation-delay: 2.5s; }
+      .star:nth-child(7) { width: 1px; height: 1px; top: 40%; left: 30%; animation-delay: 3s; }
+      .star:nth-child(8) { width: 3px; height: 3px; top: 90%; left: 60%; animation-delay: 3.5s; }
+
+      /* Cosmic rings */
+      .cosmic-ring {
+        position: absolute;
+        border: 2px solid rgba(59, 130, 246, 0.3);
+        border-radius: 50%;
+        animation: rotate 20s linear infinite;
+      }
+
+      .ring-1 { width: 300px; height: 300px; animation-duration: 20s; }
+      .ring-2 { width: 400px; height: 400px; animation-duration: 25s; animation-direction: reverse; }
+      .ring-3 { width: 500px; height: 500px; animation-duration: 30s; }
+
+      /* Floating orbs */
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, rgba(59, 130, 246, 0.2) 70%, transparent 100%);
+        animation: float-orb 6s ease-in-out infinite;
+      }
+
+      .orb-1 { width: 20px; height: 20px; top: 15%; left: 15%; animation-delay: 0s; }
+      .orb-2 { width: 15px; height: 15px; top: 25%; left: 85%; animation-delay: 2s; }
+      .orb-3 { width: 25px; height: 25px; top: 75%; left: 20%; animation-delay: 4s; }
+      .orb-4 { width: 18px; height: 18px; top: 85%; left: 80%; animation-delay: 1s; }
+
+      /* Enhanced logo with cosmic effects */
+      .loading-logo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 30px;
+        animation: cosmic-pulse 4s ease-in-out infinite;
+        filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+        position: relative;
+        z-index: 10;
+      }
+
+      /* Rotating energy rings around logo */
+      .energy-ring {
+        position: absolute;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        border-radius: 50%;
+        animation: rotate 8s linear infinite;
+      }
+
+      .energy-ring-1 { width: 140px; height: 140px; animation-duration: 8s; }
+      .energy-ring-2 { width: 160px; height: 160px; animation-duration: 12s; animation-direction: reverse; }
+      .energy-ring-3 { width: 180px; height: 180px; animation-duration: 16s; }
+
+      /* Glowing text effects */
+      .loading-text {
+        color: #ffffff;
+        font-family: serif;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-shadow:
+          0 0 10px rgba(59, 130, 246, 0.8),
+          0 0 20px rgba(59, 130, 246, 0.6),
+          0 0 30px rgba(59, 130, 246, 0.4);
+        animation: text-glow 3s ease-in-out infinite;
+        position: relative;
+        z-index: 10;
+      }
+
+      .loading-subtitle {
+        color: #bfdbfe;
+        font-family: sans-serif;
+        font-size: 16px;
+        margin-bottom: 40px;
+        text-shadow: 0 0 10px rgba(191, 219, 254, 0.5);
+        animation: subtitle-fade 2s ease-in-out infinite;
+        position: relative;
+        z-index: 10;
+      }
+
+      /* Mystical particles */
+      .mystical-particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: radial-gradient(circle, #60a5fa 0%, transparent 70%);
+        border-radius: 50%;
+        animation: mystical-float 8s ease-in-out infinite;
+      }
+
+      .mystical-particle:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+      .mystical-particle:nth-child(2) { top: 20%; left: 90%; animation-delay: 1s; }
+      .mystical-particle:nth-child(3) { top: 80%; left: 15%; animation-delay: 2s; }
+      .mystical-particle:nth-child(4) { top: 90%; left: 85%; animation-delay: 3s; }
+      .mystical-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+      .mystical-particle:nth-child(6) { top: 30%; left: 95%; animation-delay: 5s; }
+
+      /* Cosmic Spinner */
+      .cosmic-spinner {
+        width: 60px;
+        height: 60px;
+        position: relative;
+        margin-top: 30px;
+      }
+
+      .spinner-ring {
+        position: absolute;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        animation: spin 2s linear infinite;
+      }
+
+      .spinner-ring-1 {
+        width: 60px;
+        height: 60px;
+        border-top: 3px solid #3b82f6;
+        border-right: 3px solid #60a5fa;
+        animation-duration: 2s;
+      }
+
+      .spinner-ring-2 {
+        width: 45px;
+        height: 45px;
+        top: 7.5px;
+        left: 7.5px;
+        border-bottom: 3px solid #93c5fd;
+        border-left: 3px solid #bfdbfe;
+        animation-duration: 1.5s;
+        animation-direction: reverse;
+      }
+
+      .spinner-ring-3 {
+        width: 30px;
+        height: 30px;
+        top: 15px;
+        left: 15px;
+        border: 3px solid #60a5fa;
+        border-top: 3px solid transparent;
+        animation-duration: 1s;
+      }
+
+      /* Enhanced Progress Bar */
+      .progress-container {
+        width: 300px;
+        height: 8px;
+        background: rgba(191, 219, 254, 0.2);
+        border-radius: 10px;
+        margin-top: 30px;
+        overflow: hidden;
+        box-shadow:
+          inset 0 2px 4px rgba(0, 0, 0, 0.2),
+          0 0 20px rgba(59, 130, 246, 0.3);
+        position: relative;
+        z-index: 10;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg,
+          #3b82f6 0%,
+          #60a5fa 25%,
+          #93c5fd 50%,
+          #bfdbfe 75%,
+          #eff6ff 100%);
+        border-radius: 10px;
+        animation: cosmic-loading 4s ease-in-out infinite;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        position: relative;
+      }
+
+      .progress-bar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.4) 50%,
+          transparent 100%);
+        animation: shimmer 2s infinite;
+      }
+
+      /* Spectacular Animation Keyframes */
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.5); }
+      }
+
+      @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes cosmic-pulse {
+        0%, 100% {
+          transform: scale(1) rotate(0deg);
+          filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+        }
+        25% {
+          transform: scale(1.1) rotate(90deg);
+          filter: drop-shadow(0 0 30px rgba(59, 130, 246, 1));
+        }
+        50% {
+          transform: scale(1.2) rotate(180deg);
+          filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.8));
+        }
+        75% {
+          transform: scale(1.1) rotate(270deg);
+          filter: drop-shadow(0 0 30px rgba(59, 130, 246, 1));
+        }
+      }
+
+      @keyframes text-glow {
+        0%, 100% {
+          text-shadow:
+            0 0 10px rgba(59, 130, 246, 0.8),
+            0 0 20px rgba(59, 130, 246, 0.6),
+            0 0 30px rgba(59, 130, 246, 0.4);
+        }
+        50% {
+          text-shadow:
+            0 0 20px rgba(59, 130, 246, 1),
+            0 0 30px rgba(59, 130, 246, 0.8),
+            0 0 40px rgba(59, 130, 246, 0.6);
+        }
+      }
+
+      @keyframes subtitle-fade {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+      }
+
+      @keyframes float-orb {
+        0%, 100% {
+          transform: translateY(0px) translateX(0px) scale(1);
+          opacity: 0.6;
+        }
+        33% {
+          transform: translateY(-30px) translateX(20px) scale(1.2);
+          opacity: 0.8;
+        }
+        66% {
+          transform: translateY(-10px) translateX(-15px) scale(0.9);
+          opacity: 1;
+        }
+      }
+
+      @keyframes mystical-float {
+        0%, 100% {
+          transform: translateY(0px) translateX(0px) scale(1);
+          opacity: 0.4;
+        }
+        25% {
+          transform: translateY(-50px) translateX(30px) scale(1.5);
+          opacity: 0.8;
+        }
+        50% {
+          transform: translateY(-80px) translateX(-20px) scale(1.2);
+          opacity: 1;
+        }
+        75% {
+          transform: translateY(-30px) translateX(40px) scale(0.8);
+          opacity: 0.6;
+        }
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes cosmic-loading {
+        0% { width: 0%; }
+        25% { width: 30%; }
+        50% { width: 60%; }
+        75% { width: 85%; }
+        100% { width: 100%; }
+      }
+
+      @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      .fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+
+    <!-- Spectacular Loading Screen with Cosmic Effects -->
+    <div id="loading-screen" class="loading-screen">
+
+      <!-- Animated Stars Background -->
+      <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+      </div>
+
+      <!-- Cosmic Rings -->
+      <div class="cosmic-ring ring-1"></div>
+      <div class="cosmic-ring ring-2"></div>
+      <div class="cosmic-ring ring-3"></div>
+
+      <!-- Floating Orbs -->
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="orb orb-4"></div>
+
+      <!-- Mystical Particles -->
+      <div class="mystical-particle"></div>
+      <div class="mystical-particle"></div>
+      <div class="mystical-particle"></div>
+      <div class="mystical-particle"></div>
+      <div class="mystical-particle"></div>
+      <div class="mystical-particle"></div>
+
+      <!-- Energy Rings around Logo -->
+      <div class="energy-ring energy-ring-1"></div>
+      <div class="energy-ring energy-ring-2"></div>
+      <div class="energy-ring energy-ring-3"></div>
+
+      <!-- Enhanced Main Logo -->
+      <svg class="loading-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="cosmicGradient" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#eff6ff"/>
+            <stop offset="30%" stop-color="#dbeafe"/>
+            <stop offset="60%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#1d4ed8"/>
+          </radialGradient>
+          <filter id="cosmicGlow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="innerGlow">
+            <feGaussianBlur stdDeviation="2" result="innerBlur"/>
+            <feMerge>
+              <feMergeNode in="innerBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Outer glow circle -->
+        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59, 130, 246, 0.3)" stroke-width="1" filter="url(#cosmicGlow)"/>
+
+        <!-- Main logo circle -->
+        <circle cx="50" cy="50" r="42" fill="url(#cosmicGradient)" filter="url(#cosmicGlow)"/>
+
+        <!-- Inner energy circle -->
+        <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(239, 246, 255, 0.5)" stroke-width="1" filter="url(#innerGlow)"/>
+
+        <!-- Cosmic rays -->
+        <g stroke="#1d4ed8" stroke-width="2" fill="none" opacity="0.8">
+          <path d="M50 8 L50 18"/>
+          <path d="M50 82 L50 92"/>
+          <path d="M8 50 L18 50"/>
+          <path d="M82 50 L92 50"/>
+          <path d="M15.86 15.86 L23.29 23.29"/>
+          <path d="M76.71 76.71 L84.14 84.14"/>
+          <path d="M84.14 15.86 L76.71 23.29"/>
+          <path d="M23.29 76.71 L15.86 84.14"/>
+        </g>
+
+        <!-- Central letter with glow -->
+        <text x="50" y="58" text-anchor="middle" font-family="serif" font-size="28" font-weight="bold" fill="#1e40af" filter="url(#innerGlow)">A</text>
+      </svg>
+
+      <!-- Glowing Brand Text -->
+      <div class="loading-text">Aaditya Astrology</div>
+      <div class="loading-subtitle">✨ Loading your cosmic journey ✨</div>
+
+      <!-- Enhanced Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar"></div>
+      </div>
+
+      <!-- Cosmic Spinner -->
+      <div class="cosmic-spinner">
+        <div class="spinner-ring spinner-ring-1"></div>
+        <div class="spinner-ring spinner-ring-2"></div>
+        <div class="spinner-ring spinner-ring-3"></div>
+      </div>
+    </div>
+
     <div id="root"></div>
+
+    <!-- Script to hide loading screen when app loads -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.classList.add('fade-out');
+            setTimeout(function() {
+              loadingScreen.style.display = 'none';
+            }, 500);
+          }
+        }, 1000); // Show loading screen for at least 1 second
+      });
+    </script>
   </body>
 </html>
