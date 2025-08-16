@@ -8,14 +8,16 @@ import {
   RotateCcw, HelpCircle, ChevronRight, Package, Play,
   ShoppingBag, Filter, Grid, List
 } from 'lucide-react';
-
+import { getToken, getUser } from "../utils/auth";
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [viewMode, setViewMode] = useState('grid');
   const [filterCategory, setFilterCategory] = useState('all');
   const navigate = useNavigate();
-
+   const token = getToken();  // raw token
+  const user_details = getUser();   
+  console.log("user_details",user_details);
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -346,7 +348,7 @@ const Profile = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-slate-900">Hello,</h3>
-                      <p className="text-slate-600 font-medium">{user.name}</p>
+                      <p className="text-slate-600 font-medium">{user_details.fullName}</p>
                     </div>
                   </div>
                 </div>
@@ -404,7 +406,7 @@ const Profile = () => {
                   <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">Welcome back, {user.name}!</h2>
+                        <h2 className="text-2xl font-bold text-slate-900">Welcome back, {user_details.fullName}!</h2>
                         <p className="text-slate-600 mt-1">Explore our products, services, and classes</p>
                       </div>
                       <div className="flex items-center gap-3">
@@ -763,7 +765,7 @@ const Profile = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                             <input
                               type="text"
-                              value={user.name}
+                              value={user_details.fullName}
                               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               readOnly
                             />
@@ -772,7 +774,7 @@ const Profile = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
                             <input
                               type="email"
-                              value={user.email}
+                              value={user_details.email}
                               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               readOnly
                             />
@@ -781,7 +783,7 @@ const Profile = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
                             <input
                               type="tel"
-                              value={user.phone || '+91 98765 43210'}
+                              value={user_details.mobile || '+91 98765 43210'}
                               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               readOnly
                             />

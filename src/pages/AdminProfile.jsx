@@ -21,10 +21,14 @@ const AdminProfile = () => {
     name: '',
     type: '',
     price: '',
+    stock: '50',
     image: null,
     description: ''
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [blogForm, setBlogForm] = useState({
     title: '',
     category: '',
@@ -170,25 +174,7 @@ const AdminProfile = () => {
     }
   };
 
-  const handleItemSubmit = (e) => {
-    e.preventDefault();
 
-    // Here you would typically send the data to your backend
-    console.log('Item data:', itemForm);
-
-    // Reset form
-    setItemForm({
-      name: '',
-      type: '',
-      price: '',
-      image: null,
-      description: ''
-    });
-    setImagePreview(null);
-
-    // Show success message (you can implement a toast notification)
-    alert('Item added successfully!');
-  };
 
   const handleBlogFormChange = (e) => {
     const { name, value } = e.target;
@@ -325,6 +311,108 @@ const AdminProfile = () => {
     // Show success message
     alert('Class uploaded successfully!');
   };
+
+  ///Add item Functions 
+
+
+  // Submit handler
+  const handleItemSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+
+      // Validate form
+      if (!itemForm.name.trim()) {
+        setError('Item name is required');
+        return;
+      }
+      if (!itemForm.type) {
+        setError('Item type is required');
+        return;
+      }
+      if (!itemForm.price || parseFloat(itemForm.price) < 0) {
+        setError('Valid price is required');
+        return;
+      }
+
+      const myHeaders = new Headers();
+      myHeaders.append('Content-Type', 'application/json');
+
+      // Build payload according to API requirements
+      const raw = JSON.stringify({
+        productName: itemForm.name,
+        description: itemForm.description,
+        productPrice: parseFloat(itemForm.price),
+        stock: parseInt(itemForm.stock) || 50, // Use form stock value or default to 50
+        categoryMasterId: '1d49ff91-5245-4440-a61e-23ce48b72fa3', // You may want to make this dynamic
+        brand: 'Aditya Astrology', // Brand name
+        sku: `AA-${itemForm.type.toUpperCase()}-${Date.now()}`, // Generate SKU
+        imageUrl: imagePreview || '',
+        tags: itemForm.type ? [itemForm.type, 'astrology'] : ['astrology'],
+        isActive: true,
+      });
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+      };
+
+      console.log('Add Item Request:', requestOptions);
+
+      const response = await fetch('/api/add-product', requestOptions);
+      const result = await response.json();
+
+      console.log('Add Item Response:', response);
+      console.log('Add Item Result:', result);
+
+      if (response.ok) {
+        setSuccess('Item added successfully!');
+        // Reset form
+        setItemForm({
+          name: '',
+          type: '',
+          price: '',
+          stock: '50',
+          image: null,
+          description: '',
+        });
+        setImagePreview(null);
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        const errorMessage = result.message || result.error || 'Failed to add item. Please try again.';
+        setError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Error adding item:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <>
@@ -1018,6 +1106,18 @@ const AdminProfile = () => {
               {/* Add Item Section */}
               {activeSection === 'add-item' && (
                 <div className="space-y-6">
+                  {/* Error/Success Messages */}
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                      {error}
+                    </div>
+                  )}
+                  {success && (
+                    <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                      {success}
+                    </div>
+                  )}
+
                   {/* Header */}
                   <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
                     <div className="flex items-center justify-between">
@@ -1096,6 +1196,22 @@ const AdminProfile = () => {
                               min="0"
                               step="0.01"
                               required
+                            />
+                          </div>
+
+                          {/* Stock Quantity */}
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                              Stock Quantity
+                            </label>
+                            <input
+                              type="number"
+                              name="stock"
+                              value={itemForm.stock}
+                              onChange={handleItemFormChange}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="50"
+                              min="0"
                             />
                           </div>
                         </div>
@@ -1178,21 +1294,41 @@ const AdminProfile = () => {
                               name: '',
                               type: '',
                               price: '',
+                              stock: '50',
                               image: null,
                               description: ''
                             });
                             setImagePreview(null);
+                            setError('');
+                            setSuccess('');
                           }}
-                          className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                          disabled={loading}
+                          className={`px-6 py-2 border border-slate-300 text-slate-700 rounded-lg transition-colors font-medium ${
+                            loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50'
+                          }`}
                         >
                           Reset
                         </button>
                         <button
                           type="submit"
-                          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                          disabled={loading}
+                          className={`px-6 py-2 rounded-lg transition-colors font-medium flex items-center gap-2 ${
+                            loading
+                              ? 'bg-slate-400 cursor-not-allowed text-white'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
                         >
-                          <Plus className="w-4 h-4" />
-                          Add Item
+                          {loading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Adding Item...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4" />
+                              Add Item
+                            </>
+                          )}
                         </button>
                       </div>
                     </form>

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, LogOut, Bell, Settings, Sun, Sparkles } from 'lucide-react';
-
+import { getToken, getUser } from "../utils/auth";
 const UserHeader = ({ user, onLogout }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -9,6 +9,9 @@ const UserHeader = ({ user, onLogout }) => {
   const [notifications] = useState(3); // Mock notification count
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+
+    const token = getToken();  // raw token
+  const user_details = getUser();    // decoded user info
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -131,16 +134,16 @@ const UserHeader = ({ user, onLogout }) => {
                   <User className="w-4 h-4 text-white" />
                 </div>
                 <span className="hidden sm:block text-sm font-medium text-slate-700">
-                  {user?.name || 'User'}
+                  {user_details?.fullName || 'User'}
                 </span>
               </button>
 
               {showProfileDropdown && (
                 <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-lg py-2 z-50">
                   <div className="px-4 py-3 border-b border-slate-200">
-                    <p className="font-semibold text-slate-800">{user?.name || 'User'}</p>
-                    <p className="text-sm text-slate-600">{user?.email || 'user@example.com'}</p>
-                    <p className="text-xs text-blue-600 font-medium">{user?.membershipType || 'Premium'} Member</p>
+                    <p className="font-semibold text-slate-800">{user_details?.fullName || 'User'}</p>
+                    <p className="text-sm text-slate-600">{user_details?.email || 'user@example.com'}</p>
+                    <p className="text-xs text-blue-600 font-medium">{user_details?.membershipType || 'Premium'} Member</p>
                   </div>
                   
                   <div className="py-2">

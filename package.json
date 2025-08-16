@@ -2,6 +2,7 @@
   "name": "astrology",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://api.marutiitzone.com",
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@testing-library/dom": "^10.4.0",
@@ -11,6 +12,7 @@
     "axios": "^1.6.0",
     "clsx": "^1.2.1",
     "date-fns": "^2.30.0",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.533.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
