@@ -153,7 +153,7 @@ const handleLogin = async () => {
     console.log("Login requestOptions:", requestOptions);
 
     // Call API
-    const response = await fetch("/api/login", requestOptions);
+    const response = await fetch(`${API_BASE_URL}/api/login`, requestOptions);
     const result = await response.json(); // ✅ parse as JSON right away
     console.log("Login result:", result);
 
@@ -199,17 +199,20 @@ const handleLogin = async () => {
     }
 
     // Save user info
-    localStorage.setItem('user', JSON.stringify(result.user || {}));
+    localStorage.setItem('user', JSON.stringify(result || {}));
     setSuccess('Login successful! Redirecting...');
-
+    console.log("User role:", result.role);
     // Redirect
     setTimeout(() => {
-      if (result.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/profile');
-      }
-    }, 1000);
+  const role = (result.role || '').toLowerCase();
+  if (role === 'admin') {
+    console.log("Redirecting to admin profile");
+    navigate('/Admin');
+  } else if (result.role === 'user') {
+    console.log("Redirecting to user profile");
+    navigate('/profile');
+  }
+}, 1000);
 
   } catch (error) {
     console.error('Login error:', error);

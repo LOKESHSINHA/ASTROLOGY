@@ -2,7 +2,7 @@
   "name": "astrology",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://api.marutiitzone.com",
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@testing-library/dom": "^10.4.0",

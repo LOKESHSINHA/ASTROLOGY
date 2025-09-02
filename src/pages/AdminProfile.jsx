@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
+import config from '../config';
 import {
   User, Mail, Phone, Calendar, Star, BookOpen, CreditCard,
   Settings, Edit, Camera, Award, Clock, Heart,
@@ -12,7 +13,7 @@ import {
   Upload, Trash2, MoreVertical, Calendar as CalendarIcon,
   Globe, Smartphone, Tablet, Monitor, Briefcase, Home
 } from 'lucide-react';
-
+const API_BASE_URL = config.API_BASE_URL;
 const AdminProfile = () => {
   const [user, setUser] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -23,8 +24,12 @@ const AdminProfile = () => {
     price: '',
     stock: '50',
     image: null,
-    description: ''
+    description: '',
+     categoryId: "" // ✅ add categoryId
   });
+   
+   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -63,9 +68,11 @@ const AdminProfile = () => {
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
+    console.log("Saved user:", localStorage.getItem('user'));  
     if (savedUser) {
       const userData = JSON.parse(savedUser);
       // Check if user is admin
+      console.log("userData.role",userData.role);
       if (userData.role !== 'admin') {
         navigate('/profile');
         return;
@@ -74,10 +81,33 @@ const AdminProfile = () => {
     } else {
       navigate('/login');
     }
-
     // Load notifications
     loadNotifications();
   }, [navigate]);
+
+  // Fetch categories on load
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/api/categories", {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer YOUR_TOKEN_HERE",
+          },
+        });
+         const json = await res.json();
+        //console.log("categories", json);
+
+        // ✅ Store only array from `data`
+        setCategories(Array.isArray(json.data) ? json.data : []);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
 
   const loadNotifications = () => {
     // Mock notifications data
@@ -144,6 +174,32 @@ const AdminProfile = () => {
     }
   ];
 
+   console.log("activeSection",activeSection);
+   console.log("products",products);
+
+
+
+//fetching product details
+
+   const fetchProducts = async () => {
+  try {
+    const response = await fetch("http://localhost:3001/api/get-all-products", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json", // better than text/plain
+      },
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch products");
+
+    const result = await response.json();
+      console.log("products", result);
+      setProducts(result.data || []); // map over data array
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  }
+};
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/');
@@ -200,30 +256,67 @@ const AdminProfile = () => {
       reader.readAsDataURL(file);
     }
   };
+const handleBlogSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleBlogSubmit = (e) => {
-    e.preventDefault();
+  try {
+    const formData = new FormData();
 
-    // Here you would typically send the data to your backend
-    console.log('Blog data:', blogForm);
+    // Append all blog fields
+    formData.append("title", blogForm.title);
+    formData.append("category", blogForm.category || "");
+    formData.append("tags", blogForm.tags || ""); // send as comma-separated string
+    formData.append("content", blogForm.content);
+    formData.append("excerpt", blogForm.excerpt || "");
+    formData.append("status", blogForm.status || "draft");
+    formData.append("publishDate", blogForm.publishDate || "");
+    formData.append("author", blogForm.author);
+    formData.append("metaTitle", blogForm.metaTitle || "");
+    formData.append("metaDescription", blogForm.metaDescription || "");
 
-    // Reset form
-    setBlogForm({
-      title: '',
-      category: '',
-      tags: '',
-      content: '',
-      excerpt: '',
-      featuredImage: null,
-      status: 'draft',
-      publishDate: '',
-      author: ''
+    // Append file under "file" to match backend
+    if (blogForm.featuredImage) {
+      formData.append("file", blogForm.featuredImage);
+    }
+
+    // Send POST request with multipart/form-data
+    const response = await fetch(`${API_BASE_URL}/api/create-blog`, {
+      method: "POST",
+      body: formData
     });
-    setBlogImagePreview(null);
 
-    // Show success message
-    alert('Blog post added successfully!');
-  };
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("Blog created:", result);
+
+      // Reset form
+      setBlogForm({
+        title: '',
+        category: '',
+        tags: '',
+        content: '',
+        excerpt: '',
+        featuredImage: null,
+        status: 'draft',
+        publishDate: '',
+        author: '',
+        metaTitle: '',
+        metaDescription: ''
+      });
+      setBlogImagePreview(null);
+
+      alert("Blog created successfully!");
+    } else {
+      console.error("Error creating blog:", result);
+      alert("Failed to create blog: " + result.message);
+    }
+  } catch (error) {
+    console.error("Error creating blog:", error);
+    alert("Failed to create blog");
+  }
+};
+
 
   const handleClassFormChange = (e) => {
     const { name, value } = e.target;
@@ -316,90 +409,99 @@ const AdminProfile = () => {
 
 
   // Submit handler
-  const handleItemSubmit = async (e) => {
-    e.preventDefault();
+ const handleItemSubmit = async (e) => {
+  e.preventDefault();
+   console.log("Item Form Data:", itemForm);
+  try {
+    setLoading(true);
+    setError('');
+    setSuccess('');
 
-    try {
-      setLoading(true);
-      setError('');
-      setSuccess('');
-
-      // Validate form
-      if (!itemForm.name.trim()) {
-        setError('Item name is required');
-        return;
-      }
-      if (!itemForm.type) {
-        setError('Item type is required');
-        return;
-      }
-      if (!itemForm.price || parseFloat(itemForm.price) < 0) {
-        setError('Valid price is required');
-        return;
-      }
-
-      const myHeaders = new Headers();
-      myHeaders.append('Content-Type', 'application/json');
-
-      // Build payload according to API requirements
-      const raw = JSON.stringify({
-        productName: itemForm.name,
-        description: itemForm.description,
-        productPrice: parseFloat(itemForm.price),
-        stock: parseInt(itemForm.stock) || 50, // Use form stock value or default to 50
-        categoryMasterId: '1d49ff91-5245-4440-a61e-23ce48b72fa3', // You may want to make this dynamic
-        brand: 'Aditya Astrology', // Brand name
-        sku: `AA-${itemForm.type.toUpperCase()}-${Date.now()}`, // Generate SKU
-        imageUrl: imagePreview || '',
-        tags: itemForm.type ? [itemForm.type, 'astrology'] : ['astrology'],
-        isActive: true,
-      });
-
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow',
-      };
-
-      console.log('Add Item Request:', requestOptions);
-
-      const response = await fetch('/api/add-product', requestOptions);
-      const result = await response.json();
-
-      console.log('Add Item Response:', response);
-      console.log('Add Item Result:', result);
-
-      if (response.ok) {
-        setSuccess('Item added successfully!');
-        // Reset form
-        setItemForm({
-          name: '',
-          type: '',
-          price: '',
-          stock: '50',
-          image: null,
-          description: '',
-        });
-        setImagePreview(null);
-
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        const errorMessage = result.message || result.error || 'Failed to add item. Please try again.';
-        setError(errorMessage);
-      }
-    } catch (error) {
-      console.error('Error adding item:', error);
-      setError('Network error. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
+    // ✅ Validate form
+    if (!itemForm.name.trim()) {
+      setError('Item name is required');
+      return;
     }
-  };
+    if (!itemForm.categoryId) {
+      setError('Category is required');
+      return;
+    }
+    if (!itemForm.price || parseFloat(itemForm.price) < 0) {
+      setError('Valid price is required');
+      return;
+    }
+
+    // ✅ Build FormData instead of JSON
+    const formdata = new FormData();
+    formdata.append("productName", itemForm.name);
+    formdata.append("description", itemForm.description || "");
+    formdata.append("productPrice", itemForm.price);
+    formdata.append("discountPrice", itemForm.discountPrice || "0");
+    formdata.append("stock", itemForm.stock || "50");
+    formdata.append("categoryMasterId", itemForm.categoryId);
+    formdata.append("brand", "Aditya Astrology");
+    formdata.append("attributes", "");
+    formdata.append("isFeatured", "false");
+    formdata.append("isLive", "true");
+    formdata.append("metaTitle", itemForm.name);
+    formdata.append("metaDescription", itemForm.description || "");
+    
+    // ✅ Image file (if uploaded)
+    if (itemForm.image) {
+      formdata.append("images", itemForm.image);
+    }
+
+    // ✅ Headers with Bearer Token
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer YOUR_TOKEN_HERE"); // replace with real token
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: formdata,
+      redirect: "follow",
+    };
+
+    console.log("Add Item Request:", requestOptions);
+
+    const response = await fetch("http://localhost:3001/api/add-product", requestOptions);
+    const result = await response.json();
+
+    console.log("Add Item Response:", response);
+    console.log("Add Item Result:", result);
+
+    if (response.ok) {
+      setSuccess("Item added successfully!");
+      // Reset form
+      setItemForm({
+        name: "",
+        categoryId: "",
+        price: "",
+        discountPrice: "",
+        stock: "50",
+        image: null,
+        description: "",
+      });
+      setImagePreview(null);
+        alert("Product created successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } else {
+      const errorMessage =
+        result.message || result.error || "Failed to add item. Please try again.";
+      setError(errorMessage);
+    }
+  } catch (error) {
+    console.error("Error adding item:", error);
+    setError("Network error. Please check your connection and try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 
 
+   
 
 
 
@@ -1127,7 +1229,7 @@ const AdminProfile = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <button
-                          onClick={() => setActiveSection('products')}
+                          onClick={() => { setActiveSection('products'); fetchProducts(); }}
                           className="border border-slate-300 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
                         >
                           View All Items
@@ -1160,27 +1262,28 @@ const AdminProfile = () => {
                           </div>
 
                           {/* Item Type */}
-                          <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                              Item Type *
-                            </label>
-                            <select
-                              name="type"
-                              value={itemForm.type}
-                              onChange={handleItemFormChange}
-                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              required
-                            >
-                              <option value="">Select item type</option>
-                              <option value="service">Service</option>
-                              <option value="product">Product</option>
-                              <option value="consultation">Consultation</option>
-                              <option value="reading">Reading</option>
-                              <option value="course">Course</option>
-                              <option value="subscription">Subscription</option>
-                            </select>
-                          </div>
+                       <div>
+  <label className="block text-sm font-medium text-slate-700 mb-2">
+    Category Type *
+  </label>
+  <select
+    name="categoryId"
+    value={itemForm.categoryId}
+    onChange={handleItemFormChange}
+    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    required
+  >
+    {/* Placeholder option */}
+    <option value="">Select category</option>
 
+    {/* Map through categories */}
+    {categories?.map((cat) => (
+      <option key={cat.id} value={cat.id}>
+        {cat.categoryNameEng}
+      </option>
+    ))}
+  </select>
+</div>
                           {/* Item Price */}
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -1546,18 +1649,18 @@ const AdminProfile = () => {
                           </div>
 
                           {/* Publish Date */}
-                          <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                              Publish Date
-                            </label>
-                            <input
-                              type="datetime-local"
-                              name="publishDate"
-                              value={blogForm.publishDate}
-                              onChange={handleBlogFormChange}
-                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
+                        <div>
+  <label className="block text-sm font-medium text-slate-700 mb-2">
+    Publish Date
+  </label>
+  <input
+    type="date" // ✅ only date
+    name="publishDate"
+    value={blogForm.publishDate}
+    onChange={handleBlogFormChange}
+    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  />
+</div>
                         </div>
                       </div>
 
@@ -1984,6 +2087,88 @@ const AdminProfile = () => {
                   </div>
                 </div>
               )}
+              
+               {activeSection === 'products' && (
+                 <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">🛒 Products</h2>
+
+      {products.length === 0 ? (
+        <p className="text-gray-500">No products found.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {products.map((product) => {
+            const images = product.images ? JSON.parse(product.images) : [];
+
+            return (
+              <div
+                key={product.id}
+                className="border rounded-lg shadow-md p-4 bg-white"
+              >
+                {/* Product Images */}
+                {images.length > 0 ? (
+                  <img
+                    src={images[0]}
+                    alt={product.productName}
+                    className="w-full h-40 object-cover rounded-md mb-3"
+                  />
+                ) : (
+                  <div className="w-full h-40 flex items-center justify-center bg-gray-100 mb-3 text-gray-400">
+                    No Image
+                  </div>
+                )}
+
+                {/* Product Details */}
+                <h3 className="text-lg font-semibold">{product.productName}</h3>
+                <p className="text-sm text-gray-600 mb-1">{product.description}</p>
+                <p className="text-blue-600 font-bold mb-1">
+                  ₹{product.productPrice} 
+                  {product.discountPrice && product.discountPrice !== "0.00" && (
+                    <span className="text-red-500 ml-2 line-through">
+                      ₹{product.discountPrice}
+                    </span>
+                  )}
+                </p>
+                <p className="text-sm text-gray-500 mb-1">Stock: {product.stock}</p>
+                <p className="text-sm text-gray-500 mb-1">Brand: {product.brand}</p>
+
+                {/* Category */}
+                {product.categoryMaster && (
+                  <p className="text-sm text-gray-700">
+                    Category: {product.categoryMaster.categoryNameEng} ({product.categoryMaster.categoryNameHin})
+                  </p>
+                )}
+
+                {/* Attributes */}
+                {product.attributes && product.attributes !== '""' && (
+                  <p className="text-sm text-gray-500 mt-1">Attributes: {product.attributes}</p>
+                )}
+
+                {/* Status */}
+                <p className="text-sm mt-2">
+                  Status:{" "}
+                  <span className={product.isLive ? "text-green-600" : "text-red-600"}>
+                    {product.isLive ? "Live" : "Inactive"}
+                  </span>
+                </p>
+
+                {/* Created/Updated */}
+                <p className="text-xs text-gray-400 mt-1">
+                  Created: {new Date(product.createdAt).toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-400">
+                  Updated: {new Date(product.updatedAt).toLocaleString()}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+              )}
+
+
+
+
 
               {/* Default content for other sections */}
               {!['dashboard', 'portfolio-templates', 'analytics', 'profit-loss', 'subscriptions', 'notifications', 'add-item', 'add-blog', 'add-class'].includes(activeSection) && (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import UserHeader from '../components/UserHeader';
+import config from '../config';
 import {
   User, Mail, Phone, Calendar, Star, BookOpen, CreditCard,
   Settings, LogOut, Edit, Camera, Award, Clock, Heart,
@@ -9,7 +10,12 @@ import {
   ShoppingBag, Filter, Grid, List
 } from 'lucide-react';
 import { getToken, getUser } from "../utils/auth";
+
+
+
+
 const Profile = () => {
+   const API_BASE_URL = config.API_BASE_URL;
   const [user, setUser] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [viewMode, setViewMode] = useState('grid');
@@ -17,8 +23,59 @@ const Profile = () => {
   const navigate = useNavigate();
    const token = getToken();  // raw token
   const user_details = getUser();   
-  console.log("user_details",user_details);
+  //console.log("user_details",user_details);
+  
+    const [mockBlogs, setBlogs] = useState([]); // ✅ state variable for blogs
+     
+    const GetBlogsList = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/get-blogs`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch blogs");
+    }
+
+    const data = await response.json();
+    console.log("Fetched blogs:", data);
+
+    // ✅ Transform API response into clean structure
+    const formattedBlogs = data.blogs.map((blog, index) => ({
+      id: blog.id || index + 1,
+      title: blog.title,
+      excerpt: blog.excerpt,
+      content: blog.content,
+      author: blog.author,
+      publishDate: blog.publishDate
+        ? new Date(blog.publishDate).toISOString().split("T")[0]
+        : null,
+      category: blog.category,
+      tags: blog.tags ? JSON.parse(blog.tags) : [], // convert to array
+      featuredImage: `${API_BASE_URL}${blog.featuredImage}`, // attach base URL
+      readTime: blog.readTime || "5 min read", // fallback if not in API
+      views: blog.views || Math.floor(Math.random() * 5000), // mock fallback
+      likes: blog.likes || Math.floor(Math.random() * 300),  // mock fallback
+      status: blog.status,
+    }));
+
+    console.log("Formatted Blogs:", formattedBlogs);
+
+    // ✅ Store in state (assuming you have setBlogs state)
+    setBlogs(formattedBlogs);
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+  }
+};
+
+    console.log("mockBlogs state:", mockBlogs); // ✅ log state to verify
+
+    
   useEffect(() => {
+    GetBlogsList();
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -31,6 +88,12 @@ const Profile = () => {
     return <div>Loading...</div>;
   }
 
+
+
+
+   
+
+  
   const sidebarMenu = [
     {
       title: 'EXPLORE',
@@ -243,88 +306,128 @@ const Profile = () => {
     }
   ];
 
-  const mockBlogs = [
-    {
-      id: 1,
-      title: 'Understanding Your Birth Chart: A Complete Guide',
-      excerpt: 'Learn how to read and interpret your natal chart with this comprehensive guide to astrological symbols and meanings.',
-      content: 'Your birth chart is a snapshot of the sky at the exact moment you were born...',
-      author: 'Master Aditya',
-      publishDate: '2024-01-25',
-      category: 'astrology',
-      tags: ['birth chart', 'astrology', 'beginner'],
-      featuredImage: '/api/placeholder/400/250',
-      readTime: '8 min read',
-      views: 2847,
-      likes: 156,
-      status: 'published'
-    },
-    {
-      id: 2,
-      title: 'Mercury Retrograde: What It Really Means',
-      excerpt: 'Debunking myths and explaining the real effects of Mercury retrograde on communication, technology, and travel.',
-      content: 'Mercury retrograde is one of the most talked about astrological events...',
-      author: 'Master Aditya',
-      publishDate: '2024-01-22',
-      category: 'predictions',
-      tags: ['mercury retrograde', 'planets', 'astrology'],
-      featuredImage: '/api/placeholder/400/250',
-      readTime: '6 min read',
-      views: 1923,
-      likes: 89,
-      status: 'published'
-    },
-    {
-      id: 3,
-      title: 'The Power of Gemstones in Vedic Astrology',
-      excerpt: 'Discover how different gemstones can enhance planetary energies and bring positive changes to your life.',
-      content: 'Gemstones have been used in Vedic astrology for thousands of years...',
-      author: 'Master Aditya',
-      publishDate: '2024-01-20',
-      category: 'remedies',
-      tags: ['gemstones', 'vedic astrology', 'remedies'],
-      featuredImage: '/api/placeholder/400/250',
-      readTime: '10 min read',
-      views: 3156,
-      likes: 234,
-      status: 'published'
-    },
-    {
-      id: 4,
-      title: '2024 Horoscope Predictions for All Zodiac Signs',
-      excerpt: 'Get insights into what the year 2024 holds for each zodiac sign in love, career, health, and finances.',
-      content: 'As we step into 2024, the planetary alignments suggest...',
-      author: 'Master Aditya',
-      publishDate: '2024-01-18',
-      category: 'horoscope',
-      tags: ['2024', 'predictions', 'zodiac signs'],
-      featuredImage: '/api/placeholder/400/250',
-      readTime: '12 min read',
-      views: 4521,
-      likes: 312,
-      status: 'published'
-    },
-    {
-      id: 5,
-      title: 'Vastu Shastra: Creating Harmony in Your Home',
-      excerpt: 'Learn the ancient principles of Vastu Shastra to create positive energy flow in your living spaces.',
-      content: 'Vastu Shastra is the ancient Indian science of architecture...',
-      author: 'Master Aditya',
-      publishDate: '2024-01-15',
-      category: 'vastu',
-      tags: ['vastu shastra', 'home', 'energy'],
-      featuredImage: '/api/placeholder/400/250',
-      readTime: '9 min read',
-      views: 2134,
-      likes: 167,
-      status: 'published'
-    }
-  ];
+  // const mockBlogs = [
+  //   {
+  //     id: 1,
+  //     title: 'Understanding Your Birth Chart: A Complete Guide',
+  //     excerpt: 'Learn how to read and interpret your natal chart with this comprehensive guide to astrological symbols and meanings.',
+  //     content: 'Your birth chart is a snapshot of the sky at the exact moment you were born...',
+  //     author: 'Master Aditya',
+  //     publishDate: '2024-01-25',
+  //     category: 'astrology',
+  //     tags: ['birth chart', 'astrology', 'beginner'],
+  //     featuredImage: '/api/placeholder/400/250',
+  //     readTime: '8 min read',
+  //     views: 2847,
+  //     likes: 156,
+  //     status: 'published'
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'Mercury Retrograde: What It Really Means',
+  //     excerpt: 'Debunking myths and explaining the real effects of Mercury retrograde on communication, technology, and travel.',
+  //     content: 'Mercury retrograde is one of the most talked about astrological events...',
+  //     author: 'Master Aditya',
+  //     publishDate: '2024-01-22',
+  //     category: 'predictions',
+  //     tags: ['mercury retrograde', 'planets', 'astrology'],
+  //     featuredImage: '/api/placeholder/400/250',
+  //     readTime: '6 min read',
+  //     views: 1923,
+  //     likes: 89,
+  //     status: 'published'
+  //   },
+  //   {
+  //     id: 3,
+  //     title: 'The Power of Gemstones in Vedic Astrology',
+  //     excerpt: 'Discover how different gemstones can enhance planetary energies and bring positive changes to your life.',
+  //     content: 'Gemstones have been used in Vedic astrology for thousands of years...',
+  //     author: 'Master Aditya',
+  //     publishDate: '2024-01-20',
+  //     category: 'remedies',
+  //     tags: ['gemstones', 'vedic astrology', 'remedies'],
+  //     featuredImage: '/api/placeholder/400/250',
+  //     readTime: '10 min read',
+  //     views: 3156,
+  //     likes: 234,
+  //     status: 'published'
+  //   },
+  //   {
+  //     id: 4,
+  //     title: '2024 Horoscope Predictions for All Zodiac Signs',
+  //     excerpt: 'Get insights into what the year 2024 holds for each zodiac sign in love, career, health, and finances.',
+  //     content: 'As we step into 2024, the planetary alignments suggest...',
+  //     author: 'Master Aditya',
+  //     publishDate: '2024-01-18',
+  //     category: 'horoscope',
+  //     tags: ['2024', 'predictions', 'zodiac signs'],
+  //     featuredImage: '/api/placeholder/400/250',
+  //     readTime: '12 min read',
+  //     views: 4521,
+  //     likes: 312,
+  //     status: 'published'
+  //   },
+  //   {
+  //     id: 5,
+  //     title: 'Vastu Shastra: Creating Harmony in Your Home',
+  //     excerpt: 'Learn the ancient principles of Vastu Shastra to create positive energy flow in your living spaces.',
+  //     content: 'Vastu Shastra is the ancient Indian science of architecture...',
+  //     author: 'Master Aditya',
+  //     publishDate: '2024-01-15',
+  //     category: 'vastu',
+  //     tags: ['vastu shastra', 'home', 'energy'],
+  //     featuredImage: '/api/placeholder/400/250',
+  //     readTime: '9 min read',
+  //     views: 2134,
+  //     likes: 167,
+  //     status: 'published'
+  //   }
+  // ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/');
-  };
+ const handleLogout = async () => {
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    // If your API requires token for logout, add it here
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
+
+    // const raw = JSON.stringify({
+    //   identifier: "lokesh1234",  // optional, depends on API
+    //   password: "MySecurePass123" // optional, depends on API
+    // });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+   
+      redirect: "follow"
+    };
+
+    const response = await fetch(`${API_BASE_URL}/api/logout`, requestOptions);
+    const result = await response.json();
+
+    console.log("Logout API Response:", result);
+
+    if (response.ok) {
+      // Clear local storage
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+
+      // Redirect to login page
+      navigate("/login");
+    } else {
+      console.error("Logout failed:", result);
+    }
+
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
+
 
   return (
     <>
@@ -685,15 +788,23 @@ const Profile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {mockBlogs.map((blog) => (
                       <div key={blog.id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="aspect-video bg-slate-100 flex items-center justify-center relative">
-                          <BookOpen className="w-12 h-12 text-slate-400" />
-                          <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-slate-700">
-                            {blog.category}
-                          </div>
-                          <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                            {blog.readTime}
-                          </div>
-                        </div>
+                       <div className="aspect-video bg-slate-100 flex items-center justify-center relative">
+  {blog.featuredImage ? (
+    <img
+      src={blog.featuredImage}
+      alt={blog.title}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <BookOpen className="w-12 h-12 text-slate-400" />
+  )}
+  <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-slate-700">
+    {blog.category}
+  </div>
+  <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+    {blog.readTime}
+  </div>
+</div>
                         <div className="p-6">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-semibold text-slate-900 line-clamp-2">{blog.title}</h3>
@@ -701,16 +812,23 @@ const Profile = () => {
                           <p className="text-slate-600 text-sm mb-2">by {blog.author}</p>
                           <p className="text-slate-600 text-sm mb-4 line-clamp-3">{blog.excerpt}</p>
 
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {blog.tags.slice(0, 2).map((tag, index) => (
-                              <span key={index} className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs">
-                                {tag}
-                              </span>
-                            ))}
-                            {blog.tags.length > 2 && (
-                              <span className="text-slate-500 text-xs">+{blog.tags.length - 2} more</span>
-                            )}
-                          </div>
+                         <div className="flex flex-wrap gap-2 mb-4">
+  {(Array.isArray(blog.tags) ? blog.tags : blog.tags ? [blog.tags] : [])
+    .slice(0, 2)
+    .map((tag, index) => (
+      <span
+        key={index}
+        className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs"
+      >
+        {tag}
+      </span>
+    ))}
+  {(Array.isArray(blog.tags) ? blog.tags : blog.tags ? [blog.tags] : []).length > 2 && (
+    <span className="text-slate-500 text-xs">
+      +{(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).length - 2} more
+    </span>
+  )}
+</div>
 
                           <div className="flex items-center gap-4 mb-4 text-sm text-slate-600">
                             <div className="flex items-center gap-1">

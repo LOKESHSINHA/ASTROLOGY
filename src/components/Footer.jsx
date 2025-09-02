@@ -180,8 +180,8 @@ const Footer = () => {
                   <Mail className="w-5 h-5 mt-0.5 group-hover:scale-110 transition-transform" />
                   <div>
                     <p className="font-semibold text-base">Email Us</p>
-                    <a href="mailto:contact@adityaastrology.com" className="text-sm hover:underline font-medium">
-                      contact@adityaastrology.com
+                    <a href="mailto:support@adityaastro.in" className="text-sm hover:underline font-medium">
+                      support@adityaastro.in
                     </a>
                   </div>
                 </div>
@@ -190,8 +190,8 @@ const Footer = () => {
                   <Phone className="w-5 h-5 mt-0.5 group-hover:scale-110 transition-transform" />
                   <div>
                     <p className="font-semibold text-base">Call Us</p>
-                    <a href="tel:+919876543210" className="text-sm hover:underline font-medium">
-                      +91 98765 43210
+                    <a href="tel:+919669566651" className="text-sm hover:underline font-medium">
+                      +91 9669566651
                     </a>
                   </div>
                 </div>
@@ -200,7 +200,7 @@ const Footer = () => {
                   <MapPin className="w-5 h-5 mt-0.5 group-hover:scale-110 transition-transform" />
                   <div>
                     <p className="font-semibold text-base">Visit Us</p>
-                    <p className="text-sm font-medium">Mumbai, Maharashtra</p>
+                    <p className="text-sm font-medium">Korba, Chhattisgarh</p>
                   </div>
                 </div>
               </div>

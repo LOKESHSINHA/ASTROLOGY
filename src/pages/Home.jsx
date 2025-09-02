@@ -688,7 +688,7 @@ const Home = () => {
               </button>
               <button className="border-2 border-slate-700 text-slate-800 px-6 sm:px-10 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-lg hover:bg-slate-100 hover:border-slate-800 transition-all duration-300 backdrop-blur-sm flex items-center justify-center gap-2">
                 <Phone className="w-4 h-4 sm:w-6 sm:h-6" />
-                <span className="text-slate-800 hidden sm:inline">Call Now: +91 98765 43210</span>
+                <span className="text-slate-800 hidden sm:inline">Call Now: +91 9669566651</span>
                 <span className="text-slate-800 sm:hidden">Call Now</span>
               </button>
             </div>
@@ -715,7 +715,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900">Call Us</h3>
               <p className="text-slate-700 mb-3 sm:mb-4 font-medium text-sm sm:text-base">Speak directly with our astrologers</p>
-              <p className="text-slate-800 font-bold text-base sm:text-lg">+91 98765 43210</p>
+              <p className="text-slate-800 font-bold text-base sm:text-lg">+91 9669566651</p>
               <p className="text-slate-600 text-xs sm:text-sm mt-2 font-medium">Available 9 AM - 9 PM IST</p>
             </div>
 
@@ -725,7 +725,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900">Email Us</h3>
               <p className="text-slate-700 mb-3 sm:mb-4 font-medium text-sm sm:text-base">Send us your queries anytime</p>
-              <p className="text-slate-800 font-bold text-sm sm:text-base break-all">contact@adityaastrology.com</p>
+              <p className="text-slate-800 font-bold text-sm sm:text-base break-all">support@adityaastro.in</p>
               <p className="text-slate-600 text-xs sm:text-sm mt-2 font-medium">Response within 24 hours</p>
             </div>
 
@@ -735,7 +735,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900">Visit Us</h3>
               <p className="text-slate-700 mb-3 sm:mb-4 font-medium text-sm sm:text-base">Personal consultation available</p>
-              <p className="text-slate-800 font-bold text-base sm:text-lg">Mumbai, Maharashtra</p>
+              <p className="text-slate-800 font-bold text-base sm:text-lg">Korba, Chhattisgarh</p>
               <p className="text-slate-600 text-xs sm:text-sm mt-2 font-medium">By appointment only</p>
             </div>
           </div>

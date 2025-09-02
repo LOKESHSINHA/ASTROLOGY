@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Horoscope from './pages/Horoscope';
@@ -22,7 +22,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/horoscope" element={<Layout><Horoscope /></Layout>} />
@@ -45,12 +45,11 @@ function App() {
         {/* User Authentication & Profile Pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<AdminProfile />} />
+        <Route path="/admin" element={<AdminProfile />} />   {/* ✅ lowercase path */}
         <Route path="/my-readings" element={<MyReadings />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
 export default App;
-
