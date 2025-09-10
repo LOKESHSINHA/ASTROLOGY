@@ -1,98 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, User, Clock, Search, Tag, ArrowRight, Star, Heart, BookOpen, TrendingUp } from 'lucide-react';
+import { Link } from "react-router-dom";
+import config from '../config';
+//import { ArrowRight } from "lucide-react"; // keep if you’re using lucide-react
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [filteredPosts, setFilteredPosts] = useState([]);
-
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'Understanding Your Birth Chart: A Complete Guide',
-      excerpt: 'Learn how to read and interpret your natal chart for deeper self-understanding. Discover the secrets hidden in your cosmic blueprint.',
-      content: 'Your birth chart is a snapshot of the sky at the exact moment you were born. It reveals your personality traits, life purpose, and potential challenges...',
-      date: '2024-01-15',
-      author: 'Aditya Sharma',
-      category: 'Birth Charts',
-      readTime: '8 min read',
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&fit=crop',
-      tags: ['Birth Chart', 'Astrology Basics', 'Self-Discovery'],
-      featured: true,
-      views: 2450
-    },
-    {
-      id: 2,
-      title: 'Mercury Retrograde: What It Really Means',
-      excerpt: 'Debunking myths and understanding the true effects of Mercury retrograde on communication, technology, and travel.',
-      content: 'Mercury retrograde occurs 3-4 times per year when Mercury appears to move backward in its orbit. This phenomenon affects communication...',
-      date: '2024-01-12',
-      author: 'Aditya Sharma',
-      category: 'Planetary Movements',
-      readTime: '6 min read',
-      image: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=400&fit=crop',
-      tags: ['Mercury Retrograde', 'Planets', 'Communication'],
-      featured: false,
-      views: 1890
-    },
-    {
-      id: 3,
-      title: 'Love Compatibility Through Astrology',
-      excerpt: 'How to use astrology to understand relationship dynamics and compatibility. Find your perfect cosmic match.',
-      content: 'Astrological compatibility goes beyond just sun signs. Learn about Venus signs, Mars signs, and composite charts...',
-      date: '2024-01-10',
-      author: 'Aditya Sharma',
-      category: 'Love & Relationships',
-      readTime: '10 min read',
-      image: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800&h=400&fit=crop',
-      tags: ['Love', 'Compatibility', 'Relationships'],
-      featured: true,
-      views: 3200
-    },
-    {
-      id: 4,
-      title: 'The Power of Moon Phases in Daily Life',
-      excerpt: 'Harness the energy of lunar cycles for manifestation, release, and personal growth in your everyday routine.',
-      content: 'The moon affects tides, emotions, and energy levels. Learn how to align your activities with lunar phases...',
-      date: '2024-01-08',
-      author: 'Aditya Sharma',
-      category: 'Moon & Cycles',
-      readTime: '7 min read',
-      image: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=800&h=400&fit=crop',
-      tags: ['Moon Phases', 'Manifestation', 'Energy'],
-      featured: false,
-      views: 1650
-    },
-    {
-      id: 5,
-      title: 'Career Guidance Through Astrology',
-      excerpt: 'Discover your ideal career path using your birth chart. Learn about the 10th house and vocational astrology.',
-      content: 'Your career potential is written in the stars. The 10th house, Midheaven, and planetary aspects reveal...',
-      date: '2024-01-05',
-      author: 'Aditya Sharma',
-      category: 'Career & Finance',
-      readTime: '9 min read',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
-      tags: ['Career', 'Vocational Astrology', 'Success'],
-      featured: false,
-      views: 2100
-    },
-    {
-      id: 6,
-      title: 'Zodiac Signs and Their Hidden Strengths',
-      excerpt: 'Explore the unique gifts and talents each zodiac sign possesses. Unlock your cosmic superpowers.',
-      content: 'Every zodiac sign has special strengths and abilities. From Aries leadership to Pisces intuition...',
-      date: '2024-01-03',
-      author: 'Aditya Sharma',
-      category: 'Zodiac Signs',
-      readTime: '12 min read',
-      image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&h=400&fit=crop',
-      tags: ['Zodiac', 'Strengths', 'Personality'],
-      featured: true,
-      views: 2800
-    }
-  ];
-
+  const API_BASE_URL = config.API_BASE_URL;
+  //const [filteredPosts, setFilteredPosts] = useState([]);
+  const [blogPostsA, setblogPosts] = useState([]);
+  const [selectedblogPost, setSelectedBlogPost] = useState(null);
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/get-blogs`, { method: "GET" })
+      .then((res) => res.json())
+      .then((result) => {
+        const formatted = result.blogs.map((b) => ({
+          id: b.id,
+          title: b.title,
+          excerpt: b.excerpt,
+          content: b.content,
+          date: b.publishDate,
+          author: b.author,
+          category: b.category,
+          readTime: "5 min read",
+          image: b.featuredImage
+            ? `${API_BASE_URL}${b.featuredImage}`
+            : "https://via.placeholder.com/800x400",
+          tags: b.tags ? JSON.parse(b.tags) : [],
+          featured: b.status === "published",
+          views: 0
+        }));
+        setblogPosts(formatted);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+  console.log("blogs",blogPostsA);  
+  const blogPosts = blogPostsA;
+  console.log("slectedblog",selectedblogPost);
+  
   const categories = ['All', 'Birth Charts', 'Planetary Movements', 'Love & Relationships', 'Moon & Cycles', 'Career & Finance', 'Zodiac Signs'];
 
   const popularTags = ['Birth Chart', 'Love', 'Mercury Retrograde', 'Moon Phases', 'Career', 'Compatibility', 'Zodiac'];
@@ -114,10 +60,13 @@ const Blog = () => {
       );
     }
 
-    setFilteredPosts(filtered);
+   // setFilteredPosts(filtered);
   }, [searchTerm, selectedCategory]);
 
-  const featuredPosts = blogPosts.filter(post => post.featured);
+//  const featuredPosts = blogPosts.filter(post => post.featured);
+const filteredPosts = blogPostsA.filter((post) => post.featured === true);
+console.log("featuredPosts", filteredPosts);
+
   const recentPosts = blogPosts.slice(0, 3);
 
   return (
@@ -202,44 +151,69 @@ const Blog = () => {
                   Featured Articles
                 </h2>
                 <div className="grid md:grid-cols-2 gap-6">
-                  {featuredPosts.slice(0, 2).map((post) => (
-                    <article key={post.id} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-500/30">
-                      <div className="relative">
-                        <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
-                        <div className="absolute top-4 left-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                          Featured
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            {post.date}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {post.readTime}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-bold mb-3 text-gray-800 hover:text-purple-600 transition-colors">
-                          {post.title}
-                        </h3>
-                        <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-wrap gap-2">
-                            {post.tags.slice(0, 2).map((tag) => (
-                              <span key={tag} className="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <button className="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1">
-                            Read More <ArrowRight className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+                {blogPostsA.slice(0, 2).map((post) => (
+  <article
+    key={post.id}
+    className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-500/30"
+  >
+    <div className="relative">
+      <img
+        src={post.image}
+        alt={post.title}
+        className="w-full h-48 object-cover"
+      />
+      {post.featured && (
+        <div className="absolute top-4 left-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+          Featured
+        </div>
+      )}
+    </div>
+
+    <div className="p-6">
+      <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+        <span className="flex items-center gap-1">
+          <Calendar className="w-4 h-4" />
+          {new Date(post.date).toLocaleDateString("en-GB")}
+        </span>
+        <span className="flex items-center gap-1">
+          <Clock className="w-4 h-4" />
+          {post.readTime}
+        </span>
+      </div>
+
+      <h3 className="text-xl font-bold mb-3 text-gray-800 hover:text-purple-600 transition-colors">
+        {post.title}
+      </h3>
+
+      <p className="text-gray-600 mb-4">{post.excerpt}</p>
+
+      <div className="flex items-center justify-between">
+        <div className="flex flex-wrap gap-2">
+          {(
+            Array.isArray(post.tags) ? post.tags : String(post.tags).split(",")
+          )
+            .slice(0, 2)
+            .map((tag, index) => (
+              <span
+                key={index}
+                className="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs"
+              >
+                {tag.trim()}
+              </span>
+            ))}
+        </div>
+
+       <Link
+  to={`/blog/${post.id}`}
+  className="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+>
+  Read More <ArrowRight className="w-4 h-4" />
+</Link>
+      </div>
+    </div>
+  </article>
+))}
+
                 </div>
               </div>
             )}
@@ -392,6 +366,80 @@ const Blog = () => {
           animation: float 3s ease-in-out infinite;
         }
       `}</style>
+      {selectedblogPost ? (
+  <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-6">
+    {/* Blog Image */}
+    {selectedblogPost.image && (
+      <img
+        src={selectedblogPost.image}
+        alt={selectedblogPost.title}
+        className="w-full h-72 object-cover rounded-lg mb-6"
+      />
+    )}
+
+    {/* Blog Title */}
+    <h1 className="text-4xl font-bold mb-4 text-gray-900">
+      {selectedblogPost.title}
+    </h1>
+
+    {/* Blog Meta Info */}
+    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
+      <span>📅 {new Date(selectedblogPost.date).toLocaleDateString("en-GB", {
+        day: "numeric", month: "long", year: "numeric"
+      })}</span>
+      <span>✍️ {selectedblogPost.author}</span>
+      <span>📂 {selectedblogPost.category}</span>
+      <span>⏱ {selectedblogPost.readTime}</span>
+      <span>👁 {selectedblogPost.views} views</span>
+    </div>
+
+    {/* Blog Content */}
+    <div className="prose max-w-none text-gray-700 leading-relaxed">
+      {selectedblogPost.content}
+    </div>
+
+    {/* Tags */}
+    {selectedblogPost.tags && (
+      <div className="mt-6 flex flex-wrap gap-2">
+        {String(selectedblogPost.tags)
+          .split(",")
+          .map((tag, idx) => (
+            <span
+              key={idx}
+              className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm"
+            >
+              #{tag.trim()}
+            </span>
+          ))}
+      </div>
+    )}
+
+    {/* Back Button */}
+    <button
+      onClick={() => setSelectedBlogPost(null)}
+      className="mt-8 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-all"
+    >
+      ← Back to Blogs
+    </button>
+  </div>
+) : (
+  <div className="grid gap-6">
+    {blogPostsA.map((post) => (
+      <div
+        key={post.id}
+        className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-all"
+        onClick={() => setSelectedBlogPost(post)}
+      >
+        <h2 className="text-xl font-bold text-gray-900">{post.title}</h2>
+        <p className="text-gray-600 mt-2">{post.excerpt}</p>
+        <button className="text-purple-600 hover:text-purple-700 font-medium mt-3">
+          Read More →
+        </button>
+      </div>
+    ))}
+  </div>
+)}
+
     </div>
   );
 };

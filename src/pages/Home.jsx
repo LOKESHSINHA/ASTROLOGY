@@ -20,10 +20,35 @@ import {
   Eye,
   Globe
 } from "lucide-react";
+import config from "../config";
+import { useEffect, useState } from "react";
 import StylishBrand from "../components/StylishBrand";
 import "../styles/components.css";
 
 const Home = () => {
+    const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+ const API_BASE_URL = config.API_BASE_URL;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/get-all-products`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        setProducts(data.data || []); // API returns { count, data }
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+
   return (
     <div className="min-h-screen relative overflow-hidden" style={{
       background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
@@ -274,238 +299,52 @@ const Home = () => {
 
           {/* Rudraksha Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
-
-            {/* 1 Mukhi Rudraksha */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
-                  <img
-                    src="/rudraksh.png"
-                    alt="1 Mukhi Rudraksha"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  1 Mukhi
-                </div>
+      {products.map((product) => {
+        const productImage = product.images ? JSON.parse(product.images)[0] : "/placeholder.png";
+        return (
+          <div
+            key={product.id}
+            className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group"
+          >
+            <div className="relative mb-6">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
+                <img
+                  src={`${API_BASE_URL}${productImage}`}
+                  alt={product.productName}
+                  className="w-full h-full object-contain drop-shadow-lg"
+                />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">Ek Mukhi Rudraksha</h3>
-              <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
-                The most powerful and rare Rudraksha, representing Lord Shiva himself. Brings supreme consciousness and spiritual enlightenment.
-              </p>
-              <div className="space-y-2 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                  Enhances concentration & meditation
-                </div>
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                  Removes obstacles & negativity
-                </div>
+              <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {product.categoryMaster?.categoryNameEng || "Product"}
               </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-800 font-bold text-lg sm:text-xl">₹15,999</span>
-                <span className="text-slate-500 line-through text-sm">₹19,999</span>
-              </div>
-              <button className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
-                Add to Cart
-              </button>
             </div>
 
-            {/* 5 Mukhi Rudraksha */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
-                  <img
-                    src="/rudraksh.png"
-                    alt="5 Mukhi Rudraksha"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  5 Mukhi
-                </div>
-                <div className="absolute -top-2 -left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Popular
-                </div>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">Panch Mukhi Rudraksha</h3>
-              <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
-                Most common and beneficial Rudraksha representing Lord Kalagni. Ideal for health, peace, and overall well-being.
-              </p>
-              <div className="space-y-2 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Improves health & immunity
-                </div>
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Brings mental peace & stability
-                </div>
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-800 font-bold text-lg sm:text-xl">₹1,299</span>
-                <span className="text-slate-500 line-through text-sm">₹1,599</span>
-              </div>
-              <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
-                Add to Cart
-              </button>
+            <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">
+              {product.productName}
+            </h3>
+
+            <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
+              {product.description}
+            </p>
+
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-slate-800 font-bold text-lg sm:text-xl">
+                ₹{Number(product.productPrice).toLocaleString()}
+              </span>
+              {Number(product.discountPrice) > 0 && (
+                <span className="text-slate-500 line-through text-sm">
+                  ₹{Number(product.discountPrice).toLocaleString()}
+                </span>
+              )}
             </div>
 
-            {/* 7 Mukhi Rudraksha */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
-                  <img
-                    src="/rudraksh.png"
-                    alt="7 Mukhi Rudraksha"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  7 Mukhi
-                </div>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">Sapt Mukhi Rudraksha</h3>
-              <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
-                Represents Goddess Lakshmi, bringing wealth, prosperity, and abundance. Perfect for business success and financial growth.
-              </p>
-              <div className="space-y-2 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  Attracts wealth & prosperity
-                </div>
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                  Enhances business success
-                </div>
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-800 font-bold text-lg sm:text-xl">₹3,499</span>
-                <span className="text-slate-500 line-through text-sm">₹4,299</span>
-              </div>
-              <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
-                Add to Cart
-              </button>
-            </div>
-
-            {/* 14 Mukhi Rudraksha */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
-                  <img
-                    src="/rudraksh.png"
-                    alt="14 Mukhi Rudraksha"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  14 Mukhi
-                </div>
-                <div className="absolute -top-2 -left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Rare
-                </div>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">Chaturdash Mukhi</h3>
-              <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
-                The most precious gem representing Lord Hanuman. Provides divine protection, courage, and removes all obstacles.
-              </p>
-              <div className="space-y-2 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  Divine protection & courage
-                </div>
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  Removes all obstacles
-                </div>
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-800 font-bold text-lg sm:text-xl">₹25,999</span>
-                <span className="text-slate-500 line-through text-sm">₹32,999</span>
-              </div>
-              <button className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
-                Add to Cart
-              </button>
-            </div>
-
-            {/* Rudraksha Mala */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
-                  <img
-                    src="/rudraksh.png"
-                    alt="Rudraksha Mala"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Mala
-                </div>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">Rudraksha Mala (108 Beads)</h3>
-              <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
-                Complete 108 bead mala for meditation and chanting. Made with authentic 5 Mukhi Rudraksha beads for daily spiritual practice.
-              </p>
-              <div className="space-y-2 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  Perfect for meditation & chanting
-                </div>
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                  108 authentic Rudraksha beads
-                </div>
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-800 font-bold text-lg sm:text-xl">₹4,999</span>
-                <span className="text-slate-500 line-through text-sm">₹6,999</span>
-              </div>
-              <button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
-                Add to Cart
-              </button>
-            </div>
-
-            {/* Rudraksha Bracelet */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full p-4 sm:p-6 border-2 border-amber-300 shadow-lg">
-                  <img
-                    src="/rudraksh.png"
-                    alt="Rudraksha Bracelet"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Bracelet
-                </div>
-                <div className="absolute -top-2 -left-2 bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Trending
-                </div>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">Rudraksha Bracelet</h3>
-              <p className="text-slate-700 mb-4 sm:mb-6 leading-relaxed text-justify text-sm sm:text-base font-medium">
-                Stylish and spiritual bracelet with authentic Rudraksha beads. Perfect for daily wear and constant divine protection.
-              </p>
-              <div className="space-y-2 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  Stylish & spiritual design
-                </div>
-                <div className="flex items-center gap-2 text-slate-600 text-sm">
-                  <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
-                  Constant divine protection
-                </div>
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-800 font-bold text-lg sm:text-xl">₹899</span>
-                <span className="text-slate-500 line-through text-sm">₹1,299</span>
-              </div>
-              <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
-                Add to Cart
-              </button>
-            </div>
+            <button className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300">
+              Add to Cart
+            </button>
           </div>
+        );
+      })}
+    </div>
 
           {/* Bottom CTA Section */}
           <div className="text-center bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl sm:rounded-3xl p-8 sm:p-12 border border-amber-200 shadow-xl">

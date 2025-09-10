@@ -13,6 +13,7 @@ import {
   Upload, Trash2, MoreVertical, Calendar as CalendarIcon,
   Globe, Smartphone, Tablet, Monitor, Briefcase, Home
 } from 'lucide-react';
+import { TbFlagSearch } from 'react-icons/tb';
 const API_BASE_URL = config.API_BASE_URL;
 const AdminProfile = () => {
   const [user, setUser] = useState(null);
@@ -27,7 +28,12 @@ const AdminProfile = () => {
     description: '',
      categoryId: "" // ✅ add categoryId
   });
-   
+  const [blog, setBlog] = useState([]);         // all blogs
+//  const [EditBlog, setEditBlog] = useState(false); // modal open/close
+  const [selectedBlog, setSelectedBlog] = useState(null); // blog to edit
+  const [EditBlog,isEditBlog]=useState(false);
+  const [onClose,setonClose]=useState(false);
+  const [onBlogUpdated,setonBlogUpdated]=useState(false); 
    const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -66,13 +72,188 @@ const AdminProfile = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const navigate = useNavigate();
 
+
+  const [users, setUsers] = useState([]);
+  //const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (activeSection !== "users") return;
+
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/users-list`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // ✅ better than hardcoding
+          },
+        });
+
+        const data = await res.json();
+        setUsers(data.data || []);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [activeSection]);
+
+///manage blogs
+
+const [blogs, setBlogs] = useState([]);
+
+useEffect(() => {
+  const requestOptions = {
+    method: "GET",
+    redirect: "follow",
+  };
+
+  fetch(`${API_BASE_URL}/api/get-blogs`, requestOptions)
+    .then((response) => response.json())
+    .then((result) => {
+      console.log("Fetched blogs:", result);
+      if (result.blogs) {
+        setBlogs(result.blogs);
+      }
+    })
+    .catch((error) => console.error("Error fetching blogs:", error));
+}, []);
+
+const handleEdit = (id) => {
+  console.log("Edit blog:", id);
+  // TODO: open edit modal or navigate to edit page
+};
+
+const handleDelete = (id: string) => {
+  console.log("Delete blog:", id);
+  // TODO: call delete API and update state
+};
+
+const openEditModal = (blog) => {
+  setFormData({
+    title: blog.title || "",
+    category: blog.category || "",
+    tags: blog.tags || "",
+    excerpt: blog.excerpt || "",
+    content: blog.content || "",
+    author: blog.author || "",
+    status: blog.status || "draft",
+    publishDate: blog.publishDate
+      ? new Date(blog.publishDate).toISOString().split("T")[0]
+      : "",
+    metaTitle: blog.metaTitle || "",
+    metaDescription: blog.metaDescription || "",
+    featuredImage: blog.featuredImage || null, // keep string path until user changes
+  });
+
+  isEditBlog(true); // show modal
+};
+
+
+////Edit blogs 
+ const [formData, setFormData] = useState({
+    title: "",
+    category: "",
+    tags: "",
+    excerpt: "",
+    content: "",
+    author: "",
+    status: "draft",
+    publishDate: "",
+    metaTitle: "",
+    metaDescription: "",
+    featuredImage: null,
+  });
+
+  // Pre-fill form when blog data is passed
+  useEffect(() => {
+    if (blog) {
+      setFormData({
+        title: blog.title || "",
+        category: blog.category || "",
+        tags: blog.tags || "",
+        excerpt: blog.excerpt || "",
+        content: blog.content || "",
+        author: blog.author || "",
+        status: blog.status || "draft",
+        publishDate: blog.publishDate
+          ? blog.publishDate.split("T")[0]
+          : "",
+        metaTitle: blog.metaTitle || "",
+        metaDescription: blog.metaDescription || "",
+        featuredImage: null,
+      });
+    }
+  }, [blog]);
+
+  // Local change handler
+  const localHandleChange = (e) => {
+    const { name, value, type, files } = e.target;
+    if (type === "file") {
+      setFormData((prev) => ({
+        ...prev,
+        featuredImage: files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  // Renamed submit handler
+ const handleEditSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("category", formData.category);
+    data.append("tags", formData.tags);
+    data.append("excerpt", formData.excerpt);
+    data.append("content", formData.content);
+    data.append("author", formData.author);
+    data.append("status", formData.status);
+    data.append("publishDate", formData.publishDate);
+    data.append("metaTitle", formData.metaTitle);
+    data.append("metaDescription", formData.metaDescription);
+
+    if (formData.featuredImage instanceof File) {
+      data.append("file", formData.featuredImage);
+    }
+
+    const res = await fetch(
+      `${API_BASE_URL}/api/update-blog/${blog._id}`,
+      {
+        method: "POST",
+        body: data,
+      }
+    );
+
+    if (!res.ok) throw new Error("Failed to update blog");
+
+    const result = await res.json();
+    console.log("Updated Blog:", result);
+
+    isEditBlog(false); // close modal
+  } catch (err) {
+    console.error("Error updating blog:", err);
+  }
+};
+
+
+
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
-    console.log("Saved user:", localStorage.getItem('user'));  
+    //console.log("Saved user:", localStorage.getItem('user'));  
     if (savedUser) {
       const userData = JSON.parse(savedUser);
       // Check if user is admin
-      console.log("userData.role",userData.role);
+      //console.log("userData.role",userData.role);
       if (userData.role !== 'admin') {
         navigate('/profile');
         return;
@@ -89,7 +270,7 @@ const AdminProfile = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/categories", {
+        const res = await fetch(`${API_BASE_URL}/api/categories`, {
           method: "GET",
           headers: {
             Authorization: "Bearer YOUR_TOKEN_HERE",
@@ -174,31 +355,40 @@ const AdminProfile = () => {
     }
   ];
 
-   console.log("activeSection",activeSection);
-   console.log("products",products);
+   //console.log("activeSection",activeSection);
+   //console.log("products",products);
 
 
+
+
+
+
+
+   
 
 //fetching product details
 
-   const fetchProducts = async () => {
-  try {
-    const response = await fetch("http://localhost:3001/api/get-all-products", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json", // better than text/plain
-      },
-    });
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/get-all-products`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json", // correct header
+        },
+      });
 
-    if (!response.ok) throw new Error("Failed to fetch products");
+      if (!response.ok) throw new Error("Failed to fetch products");
 
-    const result = await response.json();
-      console.log("products", result);
-      setProducts(result.data || []); // map over data array
-  } catch (error) {
-    console.error("Error fetching products:", error);
-  }
-};
+      const result = await response.json();
+      //console.log("products", result);
+      setProducts(result.data || []); // safe mapping
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  fetchProducts(); // ✅ call once when component mounts
+
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -464,7 +654,7 @@ const handleBlogSubmit = async (e) => {
 
     console.log("Add Item Request:", requestOptions);
 
-    const response = await fetch("http://localhost:3001/api/add-product", requestOptions);
+    const response = await fetch(`${API_BASE_URL}/api/add-product`, requestOptions);
     const result = await response.json();
 
     console.log("Add Item Response:", response);
@@ -519,8 +709,8 @@ const handleBlogSubmit = async (e) => {
   return (
     <>
       <AdminHeader user={user} onLogout={handleLogout} />
-      <div className="min-h-screen bg-slate-50 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-h-screen bg-slate-50 pt-20">
+        <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
 
             {/* Admin Sidebar */}
@@ -545,7 +735,7 @@ const handleBlogSubmit = async (e) => {
                 </div>
 
                 {/* Navigation Menu */}
-                <div className="py-4">
+                <div className="py-8">
                   {sidebarMenu.map((section, sectionIndex) => (
                     <div key={sectionIndex} className="mb-6">
                       <h4 className="px-6 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -715,7 +905,14 @@ const handleBlogSubmit = async (e) => {
                         <div className="flex items-center justify-between">
                           <span className="text-slate-600 text-sm">{template.users.toLocaleString()} users</span>
                           <div className="flex items-center gap-2">
-                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</button>
+                             <button
+      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+      onClick={() => {
+        openEditModal(blog);
+      }}
+    >
+      Edit
+    </button>
                             <button className="text-slate-600 hover:text-slate-700 text-sm">
                               <MoreVertical className="w-4 h-4" />
                             </button>
@@ -2166,22 +2363,322 @@ const handleBlogSubmit = async (e) => {
     </div>
               )}
 
+              {activeSection === "blog-management" && (
+  <div className="p-6">
+    <h2 className="text-2xl font-bold mb-4">Blog Management</h2>
+
+    <div className="overflow-x-auto">
+      <table className="min-w-full border border-gray-300 bg-white rounded-xl shadow-md text-sm">
+        <thead className="bg-gray-100 text-gray-700">
+          <tr>
+            <th className="px-4 py-2 border text-left">Image</th>
+            <th className="px-4 py-2 border text-left">Title</th>
+            <th className="px-4 py-2 border text-left">Category</th>
+            <th className="px-4 py-2 border text-left">Tags</th>
+            <th className="px-4 py-2 border text-left">Excerpt</th>
+            <th className="px-4 py-2 border text-left">Content</th>
+            <th className="px-4 py-2 border text-left">Author</th>
+            <th className="px-4 py-2 border text-left">Status</th>
+            <th className="px-4 py-2 border text-left">Publish Date</th>
+            <th className="px-4 py-2 border text-left">Meta Title</th>
+            <th className="px-4 py-2 border text-left">Meta Description</th>
+            <th className="px-4 py-2 border text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {blogs.length > 0 ? (
+            blogs.map((blog) => (
+              <tr key={blog.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 border text-center">
+                  <img
+                    src={`${API_BASE_URL}${blog.featuredImage}`}
+                    alt={blog.title}
+                    className="w-16 h-16 object-cover rounded-lg mx-auto"
+                  />
+                </td>
+                <td className="px-4 py-2 border font-semibold">{blog.title}</td>
+                <td className="px-4 py-2 border">{blog.category}</td>
+                <td className="px-4 py-2 border">{blog.tags}</td>
+                <td className="px-4 py-2 border">{blog.excerpt}</td>
+                <td
+                  className="px-4 py-2 border max-w-[200px] truncate"
+                  title={blog.content}
+                >
+                  {blog.content}
+                </td>
+                <td className="px-4 py-2 border">{blog.author}</td>
+                <td className="px-4 py-2 border capitalize">{blog.status}</td>
+                <td className="px-4 py-2 border">
+                  {new Date(blog.publishDate).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-2 border">{blog.metaTitle || "-"}</td>
+                <td className="px-4 py-2 border">{blog.metaDescription || "-"}</td>
+                <td className="px-4 py-2 border text-center">
+                  <button
+                    onClick={() =>{
+                      openEditModal(blog);
+      }}
+                    className="px-3 py-1 mr-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(blog.id)}
+                    className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={12} className="text-center py-4 text-gray-500">
+                No blogs available
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
+{/* Edit Modal */}
+{EditBlog && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+    <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]">
+      <h2 className="text-xl font-bold mb-4">Edit Blog</h2>
+
+      <form onSubmit={handleEditSubmit} className="space-y-4">
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium">Title</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+            required
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium">Category</label>
+          <input
+            type="text"
+            name="category"
+            value={formData.category}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="block text-sm font-medium">Tags</label>
+          <input
+            type="text"
+            name="tags"
+            value={formData.tags}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+            placeholder="Comma separated"
+          />
+        </div>
+
+        {/* Excerpt */}
+        <div>
+          <label className="block text-sm font-medium">Excerpt</label>
+          <textarea
+            name="excerpt"
+            value={formData.excerpt}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+            rows="2"
+          />
+        </div>
+
+        {/* Content */}
+        <div>
+          <label className="block text-sm font-medium">Content</label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+            rows="4"
+          />
+        </div>
+
+        {/* Author */}
+        <div>
+          <label className="block text-sm font-medium">Author</label>
+          <input
+            type="text"
+            name="author"
+            value={formData.author}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium">Status</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+          >
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+
+        {/* Publish Date */}
+        <div>
+          <label className="block text-sm font-medium">Publish Date</label>
+          <input
+            type="date"
+            name="publishDate"
+            value={formData.publishDate}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        {/* Meta Title */}
+        <div>
+          <label className="block text-sm font-medium">Meta Title</label>
+          <input
+            type="text"
+            name="metaTitle"
+            value={formData.metaTitle}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        {/* Meta Description */}
+        <div>
+          <label className="block text-sm font-medium">Meta Description</label>
+          <textarea
+            name="metaDescription"
+            value={formData.metaDescription}
+            onChange={localHandleChange}
+            className="w-full p-2 border rounded-lg"
+            rows="2"
+          />
+        </div>
+
+        {/* Featured Image */}
+        <div>
+          <label className="block text-sm font-medium">Featured Image</label>
+          <input
+            type="file"
+            name="featuredImage"
+            accept="image/*"
+            onChange={(e) =>
+              setFormData({ ...formData, featuredImage: e.target.files[0] })
+            }
+            className="w-full"
+          />
+          {formData.featuredImage && typeof formData.featuredImage === "string" && (
+            <img
+              src={`${API_BASE_URL}${formData.featuredImage}`}
+              alt="Current Featured"
+              className="mt-2 w-24 h-24 object-cover rounded-lg"
+            />
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 mt-4">
+          <button
+            type="button"
+            onClick={() => isEditBlog(false)}
+            className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+             onClick={() => handleEditSubmit()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+
+{activeSection === "users" && (
+  <div className="p-6 bg-white shadow rounded-lg">
+    <h2 className="text-2xl font-bold mb-4">User List</h2>
+
+    {users.length === 0 ? (
+      <p className="text-gray-500 text-center py-6">No users found.</p>
+    ) : (
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-200 text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border p-2 text-center">#</th>
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Username</th>
+              <th className="border p-2">Email</th>
+              <th className="border p-2">Mobile</th>
+              <th className="border p-2">Role</th>
+              <th className="border p-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u, idx) => (
+              <tr
+                key={u.id}
+                className="hover:bg-gray-50 transition-colors duration-150"
+              >
+                <td className="border p-2 text-center">{idx + 1}</td>
+                <td className="border p-2">
+                  {u.firstName} {u.lastName}
+                </td>
+                <td className="border p-2">{u.username}</td>
+                <td className="border p-2">{u.email}</td>
+                <td className="border p-2">{u.mobile}</td>
+                <td className="border p-2 capitalize">{u.role}</td>
+                <td
+                  className={`border p-2 font-medium ${
+                    u.status === "active"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {u.status}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
+
+
 
 
 
 
               {/* Default content for other sections */}
-              {!['dashboard', 'portfolio-templates', 'analytics', 'profit-loss', 'subscriptions', 'notifications', 'add-item', 'add-blog', 'add-class'].includes(activeSection) && (
-                <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-                  <div className="p-6 border-b border-slate-200">
-                    <h2 className="text-xl font-semibold text-slate-900">Coming Soon</h2>
-                    <p className="text-slate-600 mt-1">This section is under development</p>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-slate-600">We're working on bringing you more admin features. Stay tuned!</p>
-                  </div>
-                </div>
-              )}
+            
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import AdminProfile from './pages/AdminProfile';
 import MyReadings from './pages/MyReadings';
+import BlogDetails from './pages/BlogDetails';
 import './App.css';
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
         <Route path="/zodiac-signs" element={<Layout><ZodiacSigns /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
-
+          <Route path="/blog/:id" element={<Layout><BlogDetails /></Layout>} />
         {/* Services Pages */}
         <Route path="/services/birth-chart" element={<Layout><BirthChart /></Layout>} />
         <Route path="/services/love" element={<Layout><LoveRelationship /></Layout>} />
