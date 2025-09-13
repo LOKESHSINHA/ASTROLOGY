@@ -132,7 +132,9 @@ const handleDelete = (id: string) => {
 };
 
 const openEditModal = (blog) => {
+  console.log("Opening edit modal for blog:", blog);
   setFormData({
+    id: blog.id || "",
     title: blog.title || "",
     category: blog.category || "",
     tags: blog.tags || "",
@@ -207,6 +209,7 @@ const openEditModal = (blog) => {
   // Renamed submit handler
  const handleEditSubmit = async (e) => {
   e.preventDefault();
+  //console.log("Submitting edit for blog ID:", blog);
 
   try {
     const data = new FormData();
@@ -226,7 +229,7 @@ const openEditModal = (blog) => {
     }
 
     const res = await fetch(
-      `${API_BASE_URL}/api/update-blog/${blog._id}`,
+      `${API_BASE_URL}/api/update-blog/${formData.id}`,
       {
         method: "POST",
         body: data,
@@ -237,6 +240,7 @@ const openEditModal = (blog) => {
 
     const result = await res.json();
     console.log("Updated Blog:", result);
+    alert("Successfully updated blog!");
 
     isEditBlog(false); // close modal
   } catch (err) {
@@ -244,7 +248,25 @@ const openEditModal = (blog) => {
   }
 };
 
+async function deleteBlog(blogId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/delete-blog/${blogId}`, {
+      method: "DELETE",
+    });
 
+    if (!response.ok) {
+      throw new Error("Failed to delete blog");
+    }
+
+    const result = await response.json();
+    console.log("✅ Blog deleted:", result);
+    alert("Blog deleted successfully!");
+
+    return result;
+  } catch (error) {
+    console.error("❌ Delete error:", error.message);
+  }
+}
 
 
   useEffect(() => {
@@ -2422,12 +2444,16 @@ const handleBlogSubmit = async (e) => {
                   >
                     Edit
                   </button>
-                  <button
-                    onClick={() => handleDelete(blog.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
+              <button
+  onClick={() => {
+    if (window.confirm("Are you sure you want to delete this blog?")) {
+      deleteBlog(blog.id);
+    }
+  }}
+  className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+>
+  Delete
+</button>
                 </td>
               </tr>
             ))
@@ -2606,12 +2632,12 @@ const handleBlogSubmit = async (e) => {
             Cancel
           </button>
           <button
-            type="submit"
-             onClick={() => handleEditSubmit()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Save Changes
-          </button>
+  type="button"
+  onClick={(e) => handleEditSubmit(e)}
+  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+>
+  Save Changes
+</button>
         </div>
       </form>
     </div>
